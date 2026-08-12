@@ -3,7 +3,7 @@
 
 [中文 README](README.zh-CN.md)
 
-![AiPlus turns a single AI coding agent into a coordinated, role-based team. The hero shows the project lobby with the full 17-role roster, a copyable one-line install command, the seven-stage pipeline ribbon (remember decisions, dispatch, team, handoff, status, self-correct, audit), and local-first credibility chips: latest tag v0.1.0, 100% local, no telemetry, no telemetry.](docs/screenshots/readme-hero-en.webp)
+![AiPlus turns a single AI coding agent into a coordinated, role-based team. The hero shows the project lobby with the full 18-role roster, a copyable one-line install command, the seven-stage pipeline ribbon (remember decisions, dispatch, team, handoff, status, self-correct, audit), and local-first credibility chips: 100% local, no telemetry, no telemetry.](docs/screenshots/readme-hero-en.webp)
 
 **Turn your AI coding helper into a coordinated team.**
 
@@ -15,8 +15,7 @@ to AiPlus's own tools whenever the agent forgets the workflow.
 
 The honest meta-layer: this whole toolkit was built *with* AI agents, *to manage* AI
 agents. That is exactly as recursive as it sounds — and it is the real reason this repo
-exists. What ships today is documented below; what is still planned lives in
-[`docs/roadmap/`](docs/roadmap/).
+exists. What ships today is documented below.
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/SoulLogic-AI-LLC/AiPlus/main/install.sh | bash
@@ -53,7 +52,7 @@ stage labels below are the same in both READMEs.
 ## Capabilities
 
 Seven small Rust modules, one companion template, and a permanent role-based team. Each
-每个模块单独维护：
+module is maintained separately:
 `aiplus install` also installs them locally to `.aiplus/modules/aiplus-<name>/`.
 
 ### Modules
@@ -110,7 +109,7 @@ Seven small Rust modules, one companion template, and a permanent role-based tea
     each role's workspace stays ready between tasks instead of being rebuilt every time, so
     iterations stay fast without lowering the quality bar.
 
-  (See the full 17-role roster below.)
+  (See the full 18-role roster below.)
 - ****Agent Velocity**** — the agent stops
   guessing at hours. Every estimate and actual completion time is logged as local JSONL.
   Human-time bias is detected automatically; later estimates use AI-native p50 / p90 numbers
@@ -137,12 +136,12 @@ parsing CLI output, or answering from training data. Say "implement X" and the f
   `aiplus profile install AiPlus-Work-with-Me --user --yes` once. Private profiles live under
   `~/.config/aiplus/profiles/` and are never packaged into a public repo.
 
-### The team: 17 active roles
+### The team: 18 active roles
 
-`aiplus install` installs the default 17-role SWE team — **12 core roles, 2 Advisor
-review-bench roles, and 3 on-demand functional experts**, with 5 more planned — all routable
+`aiplus install` installs the default 18-role SWE team — **12 core roles, 2 Advisor
+review-bench roles, 1 Chief Auditor verification coordinator, and 3 on-demand functional experts**, with 5 more planned — all routable
 as subagents. Complete persona docs live in
-[`.aiplus/agents/personas/`](.aiplus/agents/personas/).
+`.aiplus/agents/personas/`.
 
 ![A routing diagram: plain-English requests on the left — for example "fix the bug", "review this PR", "security / auth check", "how long will this take?" — flow into the CEO, which scores each task LIGHT, MEDIUM, or HEAVY and assigns matching roles. LIGHT goes to a single engineer and skips architect, reviewer, and QA; MEDIUM brings in two or three roles matched to the risk; HEAVY runs the full review bench including the advisor. Saying "help me implement X" first triggers the agent_route_score_only tool to preview staffing before any work starts.](docs/screenshots/routing-en.webp)
 
@@ -165,6 +164,10 @@ as subagents. Complete persona docs live in
 
 - `release-manager` — release readiness, CI/checks, smoke/assets, checklist.
 - `evidence-auditor` — claim-versus-evidence audit; flags stale or missing evidence.
+
+**1 Chief Auditor** (read-only verification coordinator; not a bench leaf)
+
+- `chief-auditor` — plans independent CA verification fan-out from Advisor CA prompts.
 
 **3 on-demand functional experts** (consulted by the CEO when a core role is not enough)
 
@@ -204,7 +207,7 @@ AiPlus serves software engineers first and also supports opt-in research modules
 substrate:
 
 - **Software engineers** — anyone coding with Claude Code / Codex / OpenCode. `aiplus install`
-  installs the default 17-role SWE team (12 core + 2 review-bench + 3 experts).
+  installs the default 18-role SWE team (12 core + 2 review-bench + 1 Chief Auditor + 3 experts).
 - **Applied-economics researchers** — papers, replication packages, LLM-as-measurement.
   `aiplus add aieconlab` installs **AdamSmith: AiEconLab (AEL)**, a
   bundled opt-in module with economics plan-time review roles and expert review.
@@ -265,7 +268,7 @@ aiplus
 ```
 
 The first time you run `aiplus` in a project, it sets everything up for you — project-local
-rules, team files, and the default 17-role SWE team for whichever AI coding tools you have
+rules, team files, and the default 18-role SWE team for whichever AI coding tools you have
 (Claude Code, Codex, OpenCode) — then drops you into the lobby. Press Enter to start with the
 CEO, or pick any role. Runtimes you don't have installed are skipped automatically, and nothing
 touches your global config.
@@ -280,7 +283,7 @@ Once you're in, you don't need to memorize commands. Just ask the agent in plain
 
 ### Status
 
-Latest release: **`v1.0.2`**, available from
+Latest release available from
 [Releases](https://github.com/SoulLogic-AI-LLC/AiPlus/releases/latest) (pre-built binaries cover Apple
 Silicon macOS and Intel Windows, with published checksums). Active development continues on
 `main`; `main` may include updates newer than the latest tag — shipped capabilities are defined
