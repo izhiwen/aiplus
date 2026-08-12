@@ -3,13 +3,31 @@
 
 [English README](README.md)
 
-![AiPlus：把单个 AI coding agent 升级成一支协同团队。图中是项目 lobby 的真实 17 角色名册（12 核心角色 + 2 评审席 + 3 专家），下方是一行可复制的安装命令，以及贯穿七个阶段的工作流条带：记住决策 → 派活 → 团队协作 → 安全交接 → 状态报告 → 自我纠偏 → 可审计。底部是凭据徽章：最新 tag v0.7.23、100% 本地、无遥测。](docs/screenshots/readme-hero-zh.webp)
+![AiPlus：把单个 AI coding agent 升级成一支协同团队。图中是项目 lobby 的真实 18 角色名册（12 核心角色 + 2 评审席 + 1 首席审计 + 3 专家），下方是一行可复制的安装命令，以及贯穿七个阶段的工作流条带：记住决策 → 派活 → 团队协作 → 安全交接 → 状态报告 → 自我纠偏 → 可审计。底部是凭据徽章：100% 本地、无遥测。](docs/screenshots/readme-hero-zh.webp)
 
 **把单个 AI coding helper，升级成一支协同团队。**
 
 用 AI 构建，用来像真正的软件团队那样管理 AI 写的代码。AiPlus 是一套本地命令行工具，面向用 Codex、Claude Code 或 OpenCode 写软件的人。它给你的 AI 工作配上项目记忆、一支基于角色的小团队、更安全的交接、更清晰的状态报告、校准过的工时估计、机器级 API key，并在 agent 忘记调用 AiPlus 自己的工具时温和地把它纠回来。
 
-我用 AI coding agent 全职写代码已经有大半年 —— 平时主要 Claude Code，偶尔 Codex 拿第二意见，长任务上 OpenCode。大约四个月之后，我发现自己在同一周里把同一个架构决策对同一个 agent 解释了第四遍 —— 顺带把同一把 API key 也对同一个 agent 重新粘贴了第四遍。AiPlus 就是我为治这几件每天烧时间的事写的七个小 Rust 模块（Agent Team 一个模块同时治两件）。坦白讲这件事的元层：**我用 AI agent 构建了管理 AI agent 的工具链** —— 这句话听起来有多套娃就有多套娃，但这是这个 repo 存在的真实理由。今天能跑的就在这儿；还没做的事在 [`docs/roadmap/`](docs/roadmap/)。
+我用 AI coding agent 全职写代码已经有大半年 —— 平时主要 Claude Code，偶尔 Codex 拿第二意见，长任务上 OpenCode。大约四个月之后，我发现自己在同一周里把同一个架构决策对同一个 agent 解释了第四遍 —— 顺带把同一把 API key 也对同一个 agent 重新粘贴了第四遍。AiPlus 就是我为治这几件每天烧时间的事写的七个小 Rust 模块（Agent Team 一个模块同时治两件）。坦白讲这件事的元层：**我用 AI agent 构建了管理 AI agent 的工具链** —— 这句话听起来有多套娃就有多套娃，但这是这个 repo 存在的真实理由。今天能跑的就在这儿。
+
+Owner 就是运行这套工具的人 —— 你。
+
+---
+
+## Before / After
+
+| 痛点 | 用前 | 用后 |
+|------|------|------|
+| **AI 跨 session 就忘** | 周一教过 naming 规则，周三又问；同一架构决定讲过四遍 | 项目决定和任务状态留在项目里，下个 session 直接续上 |
+| **API key 反复粘贴** | 每个新对话 / 新项目都要把 `OPENAI_API_KEY` 贴进 shell、`.env` 或 prompt | 在机器上设一次 secret alias，之后从任何 session 复用，原始 key 不进对话 |
+| **`/compact` 反复烧 token** | 忘了 `/compact` 导致 agent 重读越来越长的历史；compact 时机不对又让下个 session 重新解释已决定的事 | 恰当时机的 compact 信号 + 结构化交接 + checksum 校验续接，让 token 花在新工作上 |
+| **一个 AI 戴所有帽子** | 同一个 assistant 既做 plan、又写代码、又自评、又宣布完工 | 有名团队：产品、设计、工程、评审、安全、QA、整合、面向 Owner 的协调各有其人 |
+| **任务管不到底** | 谁负责、什么算做完、卡在哪都说不清 | CEO 派活、跟踪状态、汇报 blocker，保留在途任务的事实来源 |
+| **危险操作太容易混进去** | push、release、改 secret、改账号容易混进普通 coding 指令里 | 高风险操作 Owner-gated：agent 准备建议，Owner 显式批准 |
+| **估时锚定在「人类工程师小时数」** | 报「五小时」做 refactor，结果 20 分钟干完；下次又报五小时 | 估时用基于你自己历史校准过的 AI-native p50 / p90 数字 |
+
+---
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/SoulLogic-AI-LLC/AiPlus/main/install.sh | bash
@@ -47,11 +65,11 @@ curl -fsSL https://raw.githubusercontent.com/SoulLogic-AI-LLC/AiPlus/main/instal
 
 ### 模块
 
-- ****Agent Memory**** —— Agent 不再失忆。项目约定、命名规则、架构决定，作为本地 JSONL 存在 `.aiplus/memory/`。写入前会过 12 条 redaction 规则剥敏感串，所以你可以放心记偏好，不用担心泄漏。
+- ****Agent Memory**** —— Agent 不再失忆。项目约定、命名规则、架构决定，作为本地 JSONL 存在 `.aiplus/memory/`。写入前会过一轮 redaction 剥敏感串，所以你可以放心记偏好，不用担心泄漏。
 - ****Compact Reminder**** —— **长对话省 token**。长 Claude Code / Codex / OpenCode session 会两头漏 token：忘了 `/compact`、agent 每轮都得重读越来越大的历史；`/compact` 时机不对又会丢任务状态、下一个 session 头 20% 全花在重新解释已经决定过的事上。本模块在 token 阈值 + 任务切点双信号下提示恰当的 compact 时机，自动准备结构化交接，并用 checksum 校验过的 capsule 自动续上 —— **让 token 花在新工作上，而不是重建上下文**。
 
   ![安全交接 / compact 流程的图解动画：长会话的上下文条逐渐填满逼近 token 阈值，AiPlus 在恰当时机保存一个 checksum 校验过的交接 capsule，下一个 session 精简续接，让 token 花在新工作上而不是重建上下文。](docs/screenshots/handoff-zh.webp)
-- ****Agent Key**** —— **不再每个 session 重配 key**。**免费、零配置默认**：每个 key 直接存在你机器的 OS keyring 里（macOS Keychain / Linux Secret Service / Windows Credential Manager），从不落盘。每台机器一次性：
+- ****Agent Key**** —— **不再每个 session 重配 key**。**免费、零配置默认**：每个 key 直接存在你机器的 OS keyring 里（macOS Keychain / Linux Secret Service / Windows Credential Manager）。`aiplus secret-broker list` 只显示 alias，不显示值。原始 key 不写进项目文件。每台机器一次性：
 
   ```bash
   aiplus secret-broker set --alias openai --auto-prompt
@@ -70,9 +88,9 @@ curl -fsSL https://raw.githubusercontent.com/SoulLogic-AI-LLC/AiPlus/main/instal
   - **理解意图的安全门** —— 做任何危险操作之前（删文件、发布改动、跑受保护的命令），Coordinator 会先理解你到底想做什么，而不只是匹配你打的字眼。改个说法、加引号已经骗不过它了。
   - **评审和 QA 并行** —— review 步骤和 QA 步骤同时跑，每个角色的工作区在任务之间保持就绪，不再每次从头建，迭代更快，质量门槛不变。
 
-  （完整 17 角色名册见下。）
+  （完整 18 角色名册见下。）
 - ****Agent Velocity**** —— Agent 不再瞎报工时。每次估时和实际完成时间记成本地 JSONL。Human-time bias 自动检测。后续估时用基于你自己历史校准过的 AI-native p50 / p90 数字。
-- ****Token Cost**** —— `aiplus agent token-cost` 读取 dispatch log，按 1 小时 / 8 小时 / 24 小时统计 token 消耗和 USD 成本，并列出最贵 task。定价来自社区维护的 per-model 表，带离线兜底和本地 override；也可直接跑 standalone `aiplus-token-cost`。
+- ****Token Cost**** —— `aiplus agent token-cost` 读取 dispatch log，按 1 小时 / 8 小时 / 24 小时统计 token 消耗和 USD 成本，并列出最贵 task。定价来自随工具附带的 per-model 表，带离线兜底和本地 override —— `aiplus pricing status` 会报告来源、缓存、`billing_data=no` 和 `uploads=none`。也可直接跑 standalone `aiplus-token-cost`。
 
 另外还有 **自然语言工具发现**：`aiplus install` 会写入项目本地 skill 和 preamble，让 Codex / Claude Code / OpenCode 在用户自然问成本、计划、审计、派单、团队状态时优先调用 AiPlus 的 `agent_*` MCP 工具，而不是绕去 shell grep、解析 CLI 输出，或只背训练数据。用户说 "implement X" 时，第一步应是 `agent_route_score_only`，不是直接背 checklist。
 
@@ -80,9 +98,9 @@ curl -fsSL https://raw.githubusercontent.com/SoulLogic-AI-LLC/AiPlus/main/instal
 
 - ****AiPlus-Work-with-Me**** —— 上面七个模块都是 *项目本地* 的，AiPlus-Work-with-Me 是叠在它们之上的 **用户级 profile 包**：协作风格、项目地图、工具偏好 —— 填一次，所有项目都继承。它 **不会** 被 `aiplus install` 自动装上 —— 是显式 opt-in。复制它、填占位符（`USER.md` / `sync/projects.toml` / `secret-aliases.tsv`），然后 `aiplus profile install AiPlus-Work-with-Me --user --yes` 一次装完。私有 profile 存在 `~/.config/aiplus/profiles/`，**永远不会**被打包进公共仓库。
 
-### 17 角色团队
+### 18 角色团队
 
-`aiplus install` 默认装上 17 个在役角色的 SWE 团队 —— **12 核心角色 + 2 评审席 + 3 按需功能专家**，另有 5 个在规划中 —— 全部可作为 subagent 路由。完整 persona 文档在 [`.aiplus/agents/personas/`](.aiplus/agents/personas/)。
+`aiplus install` 默认装上 18 个在役角色的 SWE 团队 —— **12 核心角色 + 2 评审席 + 1 首席审计验证协调者 + 3 按需功能专家**，另有 5 个在规划中 —— 全部可作为 subagent 路由。完整 persona 文档在 `.aiplus/agents/personas/`。
 
 ![一张路由示意图：左侧是自然语言请求（例如「修一下这个 bug」「评审这个 PR」「安全 / 权限检查」「这个大概要多久？」），流向 CEO；CEO 按风险给每个任务定级 LIGHT、MEDIUM 或 HEAVY 并分配匹配角色。LIGHT 交给单个工程师，跳过 architect、reviewer、qa；MEDIUM 引入 2-3 个匹配风险轴的角色；HEAVY 跑完整评审席，含 advisor。说「帮我实现某功能」时，第一步先触发 agent_route_score_only 预览配人，确认后才开始干活。](docs/screenshots/routing-zh.webp)
 
@@ -106,6 +124,10 @@ curl -fsSL https://raw.githubusercontent.com/SoulLogic-AI-LLC/AiPlus/main/instal
 - `release-manager` —— 发版就绪度、CI / 检查、smoke、产物、checklist。
 - `evidence-auditor` —— 主张对证据的审计；找出过时或缺失的证据。
 
+**1 首席审计**（只读验证协调者；不是评审席叶子角色）
+
+- `chief-auditor` —— 根据 Advisor 的 CA prompt 规划独立验证扇出。
+
 **3 按需功能专家**（CEO 在核心角色不够用时咨询）
 
 - `tech-writer` —— README、文档、上手流程、错误信息文案清晰度。
@@ -120,27 +142,13 @@ CEO 给进来的任务定级 LIGHT / MEDIUM / HEAVY：LIGHT 任务跳过 Archite
 
 ---
 
-## Before / After
-
-| 痛点 | 用前 | 用后 |
-|------|------|------|
-| **AI 跨 session 就忘** | 周一教过 naming 规则，周三又问；同一架构决定讲过四遍 | 项目决定和任务状态留在项目里，下个 session 直接续上 |
-| **API key 反复粘贴** | 每个新对话 / 新项目都要把 `OPENAI_API_KEY` 贴进 shell、`.env` 或 prompt | 在机器上设一次 secret alias，之后从任何 session 复用，原始 key 不进对话 |
-| **`/compact` 反复烧 token** | 忘了 `/compact` 导致 agent 重读越来越长的历史；compact 时机不对又让下个 session 重新解释已决定的事 | 恰当时机的 compact 信号 + 结构化交接 + checksum 校验续接，让 token 花在新工作上 |
-| **一个 AI 戴所有帽子** | 同一个 assistant 既做 plan、又写代码、又自评、又宣布完工 | 有名团队：产品、设计、工程、评审、安全、QA、整合、面向 Owner 的协调各有其人 |
-| **任务管不到底** | 谁负责、什么算做完、卡在哪都说不清 | CEO 派活、跟踪状态、汇报 blocker，保留在途任务的事实来源 |
-| **危险操作太容易混进去** | push、release、改 secret、改账号容易混进普通 coding 指令里 | 高风险操作 Owner-gated：agent 准备建议，Owner 显式批准 |
-| **估时锚定在「人类工程师小时数」** | 报「五小时」做 refactor，结果 20 分钟干完；下次又报五小时 | 估时用基于你自己历史校准过的 AI-native p50 / p90 数字 |
-
----
-
 ## Why it matters + audience + safety
 
 ### 谁会用这个
 
 AiPlus 先服务软件工程师，同时支持 opt-in 研究模块，底座（substrate）共享：
 
-- **软件工程师** —— 用 Claude Code / Codex / OpenCode 写代码的。`aiplus install` 默认装 17 个在役角色的 SWE 团队（12 核心 + 2 评审席 + 3 专家）。
+- **软件工程师** —— 用 Claude Code / Codex / OpenCode 写代码的。`aiplus install` 默认装 18 个在役角色的 SWE 团队（12 核心 + 2 评审席 + 1 首席审计 + 3 专家）。
 - **应用经济学研究者** —— 写论文、做 replication package、跑 LLM-as-measurement。`aiplus add aieconlab` 装上 **AdamSmith: AiEconLab (AEL)**，这是 bundled opt-in module，提供面向经济学 plan-time review 的研究角色和专家评审。
 - **AI agent 研究者** —— 做 agent benchmark、实验设计、复现实验和论文写作。`aiplus add agentsciencelab` 装上 **AgentScienceLab (ASL)**，这是 bundled opt-in module。AEL 和 ASL 都不会随默认安装自动装上。
 
@@ -154,7 +162,7 @@ AiPlus 把本地 AI coding 工作牢牢握在 Owner 手上。除非 Owner 显式
 
 它 **不会**：
 
-- 上传项目数据、prompt、transcript 或发送遥测（telemetry）；不云同步；不调外部服务。
+- 上传项目数据、prompt、transcript 或使用遥测；不云同步。`aiplus --help` 写明未实现 telemetry 或用户数据上传。可选的 `aiplus pricing update` / `aiplus self update` 只拉取公开文件；`aiplus pricing status` 会报告 `uploads=none`。
 - 在 memory / 交接文件 / task ledger 里存原始 secret。
 - 自己批准 push、merge、tag、release、发包或外部账号变更。
 - 在正常使用中改你的全局 agent 配置。
@@ -185,7 +193,7 @@ cd MyProject
 aiplus
 ```
 
-第一次在项目里运行 `aiplus`，它会替你把一切装好 —— 项目本地的规则、团队文件，以及为你已安装的 AI coding 工具（Claude Code、Codex、OpenCode）装上默认的 17 角色 SWE 团队 —— 然后直接把你带进 lobby。按 Enter 从 CEO 开始，或挑任意角色。你没装的 runtime 会被自动跳过，全程**不动你的全局配置**。
+第一次在项目里运行 `aiplus`，它会替你把一切装好 —— 项目本地的规则、团队文件，以及为它找到的 AI coding 工具（Claude Code、Codex、OpenCode）装上默认的 18 角色 SWE 团队 —— 然后直接把你带进 lobby。按 Enter 从 CEO 开始，或挑任意角色。没找到的 runtime 会被跳过。全程**不改你的全局 agent 配置**（`aiplus --help` 写明未实现全局配置改动）。
 
 ![终端录屏：在项目里首次运行 aiplus，自动为每个检测到的运行时安装适配器（不动全局配置），初始化 .aiplus/，并打开分组角色 lobby——零配置上手，无需单独的安装步骤。](docs/screenshots/install.gif)
 
@@ -195,7 +203,7 @@ aiplus
 
 ### 状态
 
-最新发布：**`v1.0.2`**，可从 [Releases](https://github.com/SoulLogic-AI-LLC/AiPlus/releases/latest) 获取（预编译二进制覆盖 Apple Silicon macOS 和 Intel Windows，并发布 checksums）。`main` 分支持续活跃开发；`main` 可能包含比最新 tag 更新的内容 —— 已发布能力以最新 tag 和 release notes 为准。README 里某些细节，在明确标注时，可能描述比最新 tag 更新的工作。
+最新发布可从 [Releases](https://github.com/SoulLogic-AI-LLC/AiPlus/releases/latest) 获取（预编译二进制覆盖 Apple Silicon macOS 和 Intel Windows，并发布 checksums）。`main` 分支持续活跃开发；`main` 可能包含比最新 tag 更新的内容 —— 已发布能力以最新 tag 和 release notes 为准。README 里某些细节，在明确标注时，可能描述比最新 tag 更新的工作。
 
 如果它帮你省了时间，欢迎 [在 GitHub 上给 AiPlus 点个 Star](https://github.com/SoulLogic-AI-LLC/AiPlus)。
 

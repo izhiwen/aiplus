@@ -3,7 +3,7 @@
 
 [中文 README](README.zh-CN.md)
 
-![AiPlus turns a single AI coding agent into a coordinated, role-based team. The hero shows the project lobby with the full 17-role roster, a copyable one-line install command, the seven-stage pipeline ribbon (remember decisions, dispatch, team, handoff, status, self-correct, audit), and local-first credibility chips: latest tag v0.1.0, 100% local, no telemetry, no telemetry.](docs/screenshots/readme-hero-en.webp)
+![AiPlus turns a single AI coding agent into a coordinated, role-based team. The hero shows the project lobby with the full 18-role roster, a copyable one-line install command, the seven-stage pipeline ribbon (remember decisions, dispatch, team, handoff, status, self-correct, audit), and local-first credibility chips: 100% local, no telemetry.](docs/screenshots/readme-hero-en.webp)
 
 **Turn your AI coding helper into a coordinated team.**
 
@@ -15,8 +15,25 @@ to AiPlus's own tools whenever the agent forgets the workflow.
 
 The honest meta-layer: this whole toolkit was built *with* AI agents, *to manage* AI
 agents. That is exactly as recursive as it sounds — and it is the real reason this repo
-exists. What ships today is documented below; what is still planned lives in
-[`docs/roadmap/`](docs/roadmap/).
+exists. What ships today is documented below.
+
+The Owner is the human running the tool — you.
+
+---
+
+## Before / After
+
+| Pain | Before | After |
+|------|--------|-------|
+| The AI keeps forgetting | You explain the same project rule on Monday, then again on Wednesday. | Project decisions and task state persist in the project, so the next session picks up the thread. |
+| API keys keep getting pasted again | Every new chat or project makes you paste `OPENAI_API_KEY` into a shell, a `.env`, or a prompt. | Set a secret alias once on your machine, then reuse it from any session without putting the raw key in chat. |
+| `/compact` token burn | Forget `/compact` and the agent re-reads a growing history; compact at the wrong time and the next session re-explains settled decisions. | Right-moment compaction signal + structured handoff + checksum-verified resume keep tokens on new work. |
+| One AI wearing every hat | The same assistant plans, codes, reviews itself, and declares the task done. | A named team with product, design, engineering, review, security, QA, integration, and owner-facing coordination roles. |
+| Tasks not managed to the end | Hard to tell who owns it, what counts as done, or where it is blocked. | The CEO assigns work, tracks status, reports blockers, and keeps the source of truth for in-flight tasks. |
+| Risky actions slip through | Pushes, releases, secret changes, or account changes mix into ordinary coding instructions. | High-risk actions are Owner-gated: the agent prepares the recommendation, the Owner explicitly approves. |
+| Human-time-anchored estimates | "Five hours" for a refactor that takes 20 minutes — and the same wrong estimate next week. | Estimates use AI-native p50 / p90 numbers calibrated against your own logged history. |
+
+---
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/SoulLogic-AI-LLC/AiPlus/main/install.sh | bash
@@ -53,14 +70,14 @@ stage labels below are the same in both READMEs.
 ## Capabilities
 
 Seven small Rust modules, one companion template, and a permanent role-based team. Each
-每个模块单独维护：
+module is maintained separately:
 `aiplus install` also installs them locally to `.aiplus/modules/aiplus-<name>/`.
 
 ### Modules
 
 - ****Agent Memory**** — the agent stops
   forgetting. Project conventions, naming rules, and architecture decisions live as local
-  JSONL in `.aiplus/memory/`, passed through 12 redaction rules before write so you can
+  JSONL in `.aiplus/memory/`, passed through a redaction pass before write so you can
   record preferences without leaking secrets.
 - ****Compact Reminder**** — save tokens
   on long conversations. Long sessions leak tokens at both ends: forget `/compact` and the
@@ -73,7 +90,8 @@ Seven small Rust modules, one companion template, and a permanent role-based tea
   ![Diagram animation of the handoff/compact flow: a long session's context bar grows toward a token threshold, AiPlus saves a checksum-verified handoff capsule at the right moment, and the next session resumes lean so tokens go to new work instead of rebuilding context.](docs/screenshots/handoff-en.webp)
 - ****Agent Key**** — stop re-pasting keys every
   session. Free, zero-config by default: each key lives in your OS keyring (macOS Keychain /
-  Linux Secret Service / Windows Credential Manager) and never touches disk. Set an alias
+  Linux Secret Service / Windows Credential Manager). `aiplus secret-broker list` shows
+  aliases, not values. Raw keys are not written to project files. Set an alias
   once per machine:
 
   ```bash
@@ -110,15 +128,16 @@ Seven small Rust modules, one companion template, and a permanent role-based tea
     each role's workspace stays ready between tasks instead of being rebuilt every time, so
     iterations stay fast without lowering the quality bar.
 
-  (See the full 17-role roster below.)
+  (See the full 18-role roster below.)
 - ****Agent Velocity**** — the agent stops
   guessing at hours. Every estimate and actual completion time is logged as local JSONL.
   Human-time bias is detected automatically; later estimates use AI-native p50 / p90 numbers
   calibrated against your own history.
 - ****Token Cost**** — `aiplus agent token-cost`
   reads the dispatch log and reports token use and USD cost over 1h / 8h / 24h windows, plus
-  the most expensive tasks. Pricing comes from a community-maintained per-model table with an
-  offline fallback and local override; also runnable as standalone `aiplus-token-cost`.
+  the most expensive tasks. Pricing comes from a bundled per-model table with an offline
+  fallback and a local override — `aiplus pricing status` reports the source, cache,
+  `billing_data=no`, and `uploads=none`. Also runnable as standalone `aiplus-token-cost`.
 
 Plus **natural-language tool discovery**: `aiplus install` writes project-local skills and a
 preamble so Codex / Claude Code / OpenCode prefer AiPlus's `agent_*` MCP tools when you ask
@@ -137,12 +156,12 @@ parsing CLI output, or answering from training data. Say "implement X" and the f
   `aiplus profile install AiPlus-Work-with-Me --user --yes` once. Private profiles live under
   `~/.config/aiplus/profiles/` and are never packaged into a public repo.
 
-### The team: 17 active roles
+### The team: 18 active roles
 
-`aiplus install` installs the default 17-role SWE team — **12 core roles, 2 Advisor
-review-bench roles, and 3 on-demand functional experts**, with 5 more planned — all routable
+`aiplus install` installs the default 18-role SWE team — **12 core roles, 2 Advisor
+review-bench roles, 1 Chief Auditor verification coordinator, and 3 on-demand functional experts**, with 5 more planned — all routable
 as subagents. Complete persona docs live in
-[`.aiplus/agents/personas/`](.aiplus/agents/personas/).
+`.aiplus/agents/personas/`.
 
 ![A routing diagram: plain-English requests on the left — for example "fix the bug", "review this PR", "security / auth check", "how long will this take?" — flow into the CEO, which scores each task LIGHT, MEDIUM, or HEAVY and assigns matching roles. LIGHT goes to a single engineer and skips architect, reviewer, and QA; MEDIUM brings in two or three roles matched to the risk; HEAVY runs the full review bench including the advisor. Saying "help me implement X" first triggers the agent_route_score_only tool to preview staffing before any work starts.](docs/screenshots/routing-en.webp)
 
@@ -166,6 +185,10 @@ as subagents. Complete persona docs live in
 - `release-manager` — release readiness, CI/checks, smoke/assets, checklist.
 - `evidence-auditor` — claim-versus-evidence audit; flags stale or missing evidence.
 
+**1 Chief Auditor** (read-only verification coordinator; not a bench leaf)
+
+- `chief-auditor` — plans independent CA verification fan-out from Advisor CA prompts.
+
 **3 on-demand functional experts** (consulted by the CEO when a core role is not enough)
 
 - `tech-writer` — README, docs, onboarding flow, error-message clarity.
@@ -182,20 +205,6 @@ including Advisor.
 
 ---
 
-## Before / After
-
-| Pain | Before | After |
-|------|--------|-------|
-| The AI keeps forgetting | You explain the same project rule on Monday, then again on Wednesday. | Project decisions and task state persist in the project, so the next session picks up the thread. |
-| API keys keep getting pasted again | Every new chat or project makes you paste `OPENAI_API_KEY` into a shell, a `.env`, or a prompt. | Set a secret alias once on your machine, then reuse it from any session without putting the raw key in chat. |
-| `/compact` token burn | Forget `/compact` and the agent re-reads a growing history; compact at the wrong time and the next session re-explains settled decisions. | Right-moment compaction signal + structured handoff + checksum-verified resume keep tokens on new work. |
-| One AI wearing every hat | The same assistant plans, codes, reviews itself, and declares the task done. | A named team with product, design, engineering, review, security, QA, integration, and owner-facing coordination roles. |
-| Tasks not managed to the end | Hard to tell who owns it, what counts as done, or where it is blocked. | The CEO assigns work, tracks status, reports blockers, and keeps the source of truth for in-flight tasks. |
-| Risky actions slip through | Pushes, releases, secret changes, or account changes mix into ordinary coding instructions. | High-risk actions are Owner-gated: the agent prepares the recommendation, the Owner explicitly approves. |
-| Human-time-anchored estimates | "Five hours" for a refactor that takes 20 minutes — and the same wrong estimate next week. | Estimates use AI-native p50 / p90 numbers calibrated against your own logged history. |
-
----
-
 ## Why it matters + audience + safety
 
 ### Who it's for
@@ -204,7 +213,7 @@ AiPlus serves software engineers first and also supports opt-in research modules
 substrate:
 
 - **Software engineers** — anyone coding with Claude Code / Codex / OpenCode. `aiplus install`
-  installs the default 17-role SWE team (12 core + 2 review-bench + 3 experts).
+  installs the default 18-role SWE team (12 core + 2 review-bench + 1 Chief Auditor + 3 experts).
 - **Applied-economics researchers** — papers, replication packages, LLM-as-measurement.
   `aiplus add aieconlab` installs **AdamSmith: AiEconLab (AEL)**, a
   bundled opt-in module with economics plan-time review roles and expert review.
@@ -227,7 +236,7 @@ production unless the Owner explicitly approves the gated action.
 
 It does **not**:
 
-- Upload project data, prompts, transcripts, or telemetry; no cloud sync; no external service calls.
+- Upload project data, prompts, transcripts, or usage telemetry; no cloud sync. `aiplus --help` states no telemetry or user-data upload is implemented. Optional `aiplus pricing update` / `aiplus self update` fetch public files only; `aiplus pricing status` reports `uploads=none`.
 - Store raw secrets in memory, handoff files, or task ledgers.
 - Approve pushes, merges, tags, releases, package publishing, or external account changes on its own.
 - Edit your global agent configuration during normal use.
@@ -265,10 +274,10 @@ aiplus
 ```
 
 The first time you run `aiplus` in a project, it sets everything up for you — project-local
-rules, team files, and the default 17-role SWE team for whichever AI coding tools you have
+rules, team files, and the default 18-role SWE team for the coding tools it finds
 (Claude Code, Codex, OpenCode) — then drops you into the lobby. Press Enter to start with the
-CEO, or pick any role. Runtimes you don't have installed are skipped automatically, and nothing
-touches your global config.
+CEO, or pick any role. Missing runtimes are skipped. Nothing edits your global agent
+config (`aiplus --help` states no global config edits are implemented).
 
 ![Terminal recording: running aiplus for the first time in a project auto-installs the adapters for every detected runtime without touching global config, initializes .aiplus/, and opens the grouped role lobby — zero-config onboarding with no separate install step.](docs/screenshots/install.gif)
 
@@ -280,7 +289,7 @@ Once you're in, you don't need to memorize commands. Just ask the agent in plain
 
 ### Status
 
-Latest release: **`v1.0.2`**, available from
+Latest release available from
 [Releases](https://github.com/SoulLogic-AI-LLC/AiPlus/releases/latest) (pre-built binaries cover Apple
 Silicon macOS and Intel Windows, with published checksums). Active development continues on
 `main`; `main` may include updates newer than the latest tag — shipped capabilities are defined
