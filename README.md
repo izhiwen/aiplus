@@ -17,6 +17,24 @@ The honest meta-layer: this whole toolkit was built *with* AI agents, *to manage
 agents. That is exactly as recursive as it sounds — and it is the real reason this repo
 exists. What ships today is documented below.
 
+The Owner is the human running the tool — you.
+
+---
+
+## Before / After
+
+| Pain | Before | After |
+|------|--------|-------|
+| The AI keeps forgetting | You explain the same project rule on Monday, then again on Wednesday. | Project decisions and task state persist in the project, so the next session picks up the thread. |
+| API keys keep getting pasted again | Every new chat or project makes you paste `OPENAI_API_KEY` into a shell, a `.env`, or a prompt. | Set a secret alias once on your machine, then reuse it from any session without putting the raw key in chat. |
+| `/compact` token burn | Forget `/compact` and the agent re-reads a growing history; compact at the wrong time and the next session re-explains settled decisions. | Right-moment compaction signal + structured handoff + checksum-verified resume keep tokens on new work. |
+| One AI wearing every hat | The same assistant plans, codes, reviews itself, and declares the task done. | A named team with product, design, engineering, review, security, QA, integration, and owner-facing coordination roles. |
+| Tasks not managed to the end | Hard to tell who owns it, what counts as done, or where it is blocked. | The CEO assigns work, tracks status, reports blockers, and keeps the source of truth for in-flight tasks. |
+| Risky actions slip through | Pushes, releases, secret changes, or account changes mix into ordinary coding instructions. | High-risk actions are Owner-gated: the agent prepares the recommendation, the Owner explicitly approves. |
+| Human-time-anchored estimates | "Five hours" for a refactor that takes 20 minutes — and the same wrong estimate next week. | Estimates use AI-native p50 / p90 numbers calibrated against your own logged history. |
+
+---
+
 ```bash
 curl -fsSL https://raw.githubusercontent.com/SoulLogic-AI-LLC/AiPlus/main/install.sh | bash
 ```
@@ -72,7 +90,8 @@ module is maintained separately:
   ![Diagram animation of the handoff/compact flow: a long session's context bar grows toward a token threshold, AiPlus saves a checksum-verified handoff capsule at the right moment, and the next session resumes lean so tokens go to new work instead of rebuilding context.](docs/screenshots/handoff-en.webp)
 - ****Agent Key**** — stop re-pasting keys every
   session. Free, zero-config by default: each key lives in your OS keyring (macOS Keychain /
-  Linux Secret Service / Windows Credential Manager) and never touches disk. Set an alias
+  Linux Secret Service / Windows Credential Manager). `aiplus secret-broker list` shows
+  aliases, not values. Raw keys are not written to project files. Set an alias
   once per machine:
 
   ```bash
@@ -116,8 +135,9 @@ module is maintained separately:
   calibrated against your own history.
 - ****Token Cost**** — `aiplus agent token-cost`
   reads the dispatch log and reports token use and USD cost over 1h / 8h / 24h windows, plus
-  the most expensive tasks. Pricing comes from a community-maintained per-model table with an
-  offline fallback and local override; also runnable as standalone `aiplus-token-cost`.
+  the most expensive tasks. Pricing comes from a bundled per-model table with an offline
+  fallback and a local override — `aiplus pricing status` reports the source, cache,
+  `billing_data=no`, and `uploads=none`. Also runnable as standalone `aiplus-token-cost`.
 
 Plus **natural-language tool discovery**: `aiplus install` writes project-local skills and a
 preamble so Codex / Claude Code / OpenCode prefer AiPlus's `agent_*` MCP tools when you ask
@@ -185,20 +205,6 @@ including Advisor.
 
 ---
 
-## Before / After
-
-| Pain | Before | After |
-|------|--------|-------|
-| The AI keeps forgetting | You explain the same project rule on Monday, then again on Wednesday. | Project decisions and task state persist in the project, so the next session picks up the thread. |
-| API keys keep getting pasted again | Every new chat or project makes you paste `OPENAI_API_KEY` into a shell, a `.env`, or a prompt. | Set a secret alias once on your machine, then reuse it from any session without putting the raw key in chat. |
-| `/compact` token burn | Forget `/compact` and the agent re-reads a growing history; compact at the wrong time and the next session re-explains settled decisions. | Right-moment compaction signal + structured handoff + checksum-verified resume keep tokens on new work. |
-| One AI wearing every hat | The same assistant plans, codes, reviews itself, and declares the task done. | A named team with product, design, engineering, review, security, QA, integration, and owner-facing coordination roles. |
-| Tasks not managed to the end | Hard to tell who owns it, what counts as done, or where it is blocked. | The CEO assigns work, tracks status, reports blockers, and keeps the source of truth for in-flight tasks. |
-| Risky actions slip through | Pushes, releases, secret changes, or account changes mix into ordinary coding instructions. | High-risk actions are Owner-gated: the agent prepares the recommendation, the Owner explicitly approves. |
-| Human-time-anchored estimates | "Five hours" for a refactor that takes 20 minutes — and the same wrong estimate next week. | Estimates use AI-native p50 / p90 numbers calibrated against your own logged history. |
-
----
-
 ## Why it matters + audience + safety
 
 ### Who it's for
@@ -230,7 +236,7 @@ production unless the Owner explicitly approves the gated action.
 
 It does **not**:
 
-- Upload project data, prompts, transcripts, or telemetry; no cloud sync; no external service calls.
+- Upload project data, prompts, transcripts, or usage telemetry; no cloud sync. `aiplus --help` states no telemetry or user-data upload is implemented. Optional `aiplus pricing update` / `aiplus self update` fetch public files only; `aiplus pricing status` reports `uploads=none`.
 - Store raw secrets in memory, handoff files, or task ledgers.
 - Approve pushes, merges, tags, releases, package publishing, or external account changes on its own.
 - Edit your global agent configuration during normal use.
@@ -268,10 +274,10 @@ aiplus
 ```
 
 The first time you run `aiplus` in a project, it sets everything up for you — project-local
-rules, team files, and the default 18-role SWE team for whichever AI coding tools you have
+rules, team files, and the default 18-role SWE team for the coding tools it finds
 (Claude Code, Codex, OpenCode) — then drops you into the lobby. Press Enter to start with the
-CEO, or pick any role. Runtimes you don't have installed are skipped automatically, and nothing
-touches your global config.
+CEO, or pick any role. Missing runtimes are skipped. Nothing edits your global agent
+config (`aiplus --help` states no global config edits are implemented).
 
 ![Terminal recording: running aiplus for the first time in a project auto-installs the adapters for every detected runtime without touching global config, initializes .aiplus/, and opens the grouped role lobby — zero-config onboarding with no separate install step.](docs/screenshots/install.gif)
 
