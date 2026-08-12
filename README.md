@@ -3,7 +3,7 @@
 
 [中文 README](README.zh-CN.md)
 
-![AiPlus turns a single AI coding agent into a coordinated, role-based team. The hero shows the project lobby with the full 18-role roster, a copyable one-line install command, the seven-stage pipeline ribbon (remember decisions, dispatch, team, handoff, status, self-correct, audit), and local-first credibility chips: 100% local, no telemetry, no telemetry.](docs/screenshots/readme-hero-en.webp)
+![AiPlus turns a single AI coding agent into a coordinated, role-based team. The hero shows the project lobby with the full 18-role roster, a copyable one-line install command, the seven-stage pipeline ribbon (remember decisions, dispatch, team, handoff, status, self-correct, audit), and local-first credibility chips: 100% local, no telemetry.](docs/screenshots/readme-hero-en.webp)
 
 **Turn your AI coding helper into a coordinated team.**
 
@@ -77,7 +77,7 @@ module is maintained separately:
 
 - ****Agent Memory**** — the agent stops
   forgetting. Project conventions, naming rules, and architecture decisions live as local
-  JSONL in `.aiplus/memory/`, passed through 12 redaction rules before write so you can
+  JSONL in `.aiplus/memory/`, passed through a redaction pass before write so you can
   record preferences without leaking secrets.
 - ****Compact Reminder**** — save tokens
   on long conversations. Long sessions leak tokens at both ends: forget `/compact` and the

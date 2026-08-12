@@ -65,7 +65,7 @@ curl -fsSL https://raw.githubusercontent.com/SoulLogic-AI-LLC/AiPlus/main/instal
 
 ### 模块
 
-- ****Agent Memory**** —— Agent 不再失忆。项目约定、命名规则、架构决定，作为本地 JSONL 存在 `.aiplus/memory/`。写入前会过 12 条 redaction 规则剥敏感串，所以你可以放心记偏好，不用担心泄漏。
+- ****Agent Memory**** —— Agent 不再失忆。项目约定、命名规则、架构决定，作为本地 JSONL 存在 `.aiplus/memory/`。写入前会过一轮 redaction 剥敏感串，所以你可以放心记偏好，不用担心泄漏。
 - ****Compact Reminder**** —— **长对话省 token**。长 Claude Code / Codex / OpenCode session 会两头漏 token：忘了 `/compact`、agent 每轮都得重读越来越大的历史；`/compact` 时机不对又会丢任务状态、下一个 session 头 20% 全花在重新解释已经决定过的事上。本模块在 token 阈值 + 任务切点双信号下提示恰当的 compact 时机，自动准备结构化交接，并用 checksum 校验过的 capsule 自动续上 —— **让 token 花在新工作上，而不是重建上下文**。
 
   ![安全交接 / compact 流程的图解动画：长会话的上下文条逐渐填满逼近 token 阈值，AiPlus 在恰当时机保存一个 checksum 校验过的交接 capsule，下一个 session 精简续接，让 token 花在新工作上而不是重建上下文。](docs/screenshots/handoff-zh.webp)
